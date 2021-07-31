@@ -1,0 +1,32 @@
+version: "3.3"
+
+services:
+    envoy:
+        image: envoyproxy/envoy-dev:4506199dc7d735e0d30e0c9e3fe4805e8da56977
+        ports:
+            - "10000:10000"
+        volumes:
+            - ./envoy.yaml:/etc/envoy/envoy.yaml
+
+    go_api:
+        build:
+            context: .
+            dockerfile: ./go_service/Dockerfile
+        working_dir: /go/src/github.com/sixilli/TekkenHub
+        volumes:
+            - ./go-backend:/go/src/github.com/sixilli/TekkenHub
+            - ./go-backend/api:/go/src/github.com/sixilli/TekkenHub/api
+            - ./go-backend/storage:/go/src/github.com/sixilli/TekkenHub/storage
+        ports:
+            - "12082:12082"
+        environment:
+            - PORT=12082
+    
+    matrix_service:
+        build:
+            context: ./matrix_service
+            dockerfile: Dockerfile
+        ports: 
+            - "9001:9001"
+        volumes:
+            - G:\projects\stackpath\matrix_service\src:/usr/local/src/matrix_service/src
