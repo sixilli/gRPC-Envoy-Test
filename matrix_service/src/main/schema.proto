@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package routeguide;
+
+// Interface exported by the server.
+service RouteGuide {
+  rpc GetMatrixAddition(Matrix) returns (Matrix) {}
+}
+
+message Matrix {
+  repeated int32 data = 1;
+  int32 rows = 2;
+}
