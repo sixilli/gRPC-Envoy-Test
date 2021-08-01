@@ -17,7 +17,7 @@ class Matrix {
         Matrix(const std::vector<std::vector<T>>& new_matrix);
 
         //Matrix operator*(Matrix& m2);
-        Matrix operator+(Matrix& m2);
+        Matrix operator+(const Matrix& m2);
         //Matrix operator-(Matrix& m2);
 
         void print_matrix();
@@ -48,12 +48,12 @@ Matrix<T>::Matrix(const std::vector<std::vector<T>>& new_matrix)
 
     width = new_matrix.at(0).size();
     if (width == 0)
-        throw std::invalid_argument("Matrix: Row lenght must be greater than 0");
+        throw std::invalid_argument("Matrix: Row length must be greater than 0");
 
     for (auto row : new_matrix)
     {
         if (row.size() != width)
-            throw std::invalid_argument("Matrix: Row or Column lenghts do not match");
+            throw std::invalid_argument("Matrix: Row or column lengths do not match");
     }
 
     rows = height;
@@ -63,7 +63,7 @@ Matrix<T>::Matrix(const std::vector<std::vector<T>>& new_matrix)
 }
 
 template<typename T>
-Matrix<T> Matrix<T>::operator+(Matrix& m2) 
+Matrix<T> Matrix<T>::operator+(const Matrix& m2) 
 {
     if (m2.size != size || m2.rows != rows || m2.columns != columns)
         throw std::invalid_argument("Matrixes are not of the same size");
