@@ -28,5 +28,7 @@ services:
             dockerfile: Dockerfile
         ports: 
             - "9001:9001"
+        working_dir: /src/workspace
         volumes:
-            - G:\projects\stackpath\matrix_service\src:/usr/local/src/matrix_service/src
+            - ./matrix_service/src:/src/workspace
+            - ./matrix_service/src/tmp/build_output:/tmp/build_output
