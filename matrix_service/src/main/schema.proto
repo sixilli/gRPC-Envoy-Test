@@ -2,12 +2,16 @@ syntax = "proto3";
 
 package routeguide;
 
-// Interface exported by the server.
 service RouteGuide {
-  rpc GetMatrixAddition(Matrix) returns (Matrix) {}
+  rpc GetMatrixAddition(MatrixRequest) returns (MatrixArr) {}
 }
 
-message Matrix {
+message MatrixRequest {
+  repeated MatrixArr data = 1;
+}
+
+message MatrixArr {
   repeated int32 data = 1;
   int32 rows = 2;
+  int32 cols = 3;
 }

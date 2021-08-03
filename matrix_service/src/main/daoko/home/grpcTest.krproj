@@ -1,0 +1,19 @@
+{
+  "id": "f4b54186-0a9c-4a31-bdd5-95ed1479bfa8",
+  "importStreams": [
+    {
+      "id": "4fd61634-fca3-47fa-ba7c-cce6e58c3ea5",
+      "name": "test",
+      "importerName": "ProtoFile",
+      "createMissingOperations": true,
+      "options": {
+        "files": [
+          "../../schema.proto"
+        ],
+        "importPaths": []
+      }
+    }
+  ],
+  "authConfigs": [],
+  "certificates": []
+}

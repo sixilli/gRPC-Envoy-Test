@@ -15,6 +15,7 @@ class Matrix {
 
         Matrix();
         Matrix(const std::vector<std::vector<T>>& new_matrix);
+        Matrix(const std::vector<std::vector<T>>& new_matrix, T r, T c);
 
         //Matrix operator*(Matrix& m2);
         Matrix operator+(const Matrix& m2);
@@ -35,6 +36,29 @@ Matrix<T>::Matrix() {
         {1, 2},
         {3, 4}
     };
+}
+
+template<typename T>
+Matrix<T>::Matrix(const std::vector<std::vector<T>>& new_matrix, T r, T c) {
+    if (new_matrix.size() != r * c)
+        throw std::invalid_argument("Invalid Matrix");
+
+    rows = r;
+    columns = c;
+    size = r * c;
+    std::vector<std::vector<T>> new_data(r, std::vector<T>(c, 0));
+
+    int row_count = 0;
+    int old_index = 0;
+    while (row_count < rows) 
+    {
+        for (int i = 0; i < columns; i++)
+        {
+            new_data[row_count][i] = new_matrix[old_index];
+            ++old_index;
+        }
+        ++row_count;
+    }
 }
 
 template<typename T>

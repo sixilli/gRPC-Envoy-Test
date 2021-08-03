@@ -3,33 +3,36 @@
 #include <memory>
 #include <string>
 
-#include <grpcpp/grpcpp.h>
+#include <grpc/grpc.h>
+#include <grpc++/grpc++.h>
+#include <grpcpp/server.h>
+#include <grpcpp/server_builder.h>
+#include <grpcpp/server_context.h>
+#include <grpcpp/security/server_credentials.h>
 
-#ifdef BAZEL_BUILD
-#include "matrix_service.grpc.pb.h"
-#else
-#include "matrix_service.grpc.pb.h"
-#endif
+#include "main/schema.grpc.pb.h"
 
 using grpc::Server;
 using grpc::ServerBuilder;
 using grpc::ServerContext;
+using grpc::ServerWriter;
 using grpc::Status;
-using schema::RouteGuide;
+using grpc::StatusCode;
 
-// Logic and data behind the server's behavior.
-class GreeterServiceImpl final : public Greeter::Service {
-  Status SayHello(ServerContext* context, const HelloRequest* request,
-                  HelloReply* reply) override {
-    std::string prefix("Hello ");
-    reply->set_message(prefix + request->name());
-    return Status::OK;
-  }
+using routeguide::RouteGuide;
+using routeguide::MatrixRequest;
+using routeguide::MatrixArr;
 
-  Status SayHelloAgain(ServerContext* context, const HelloRequest* request,
-                       HelloReply* reply) override {
-    std::string prefix("Hello again ");
-    reply->set_message(prefix + request->name());
+class RouteGuideImpl final : public RouteGuide::Service {
+  Status GetMatrixAddition(ServerContext* context, 
+                           const MatrixRequest* request, 
+                           MatrixArr* reply) override {
+    std::vector<int> mat{1,2,3,4};
+    for (int i = 0; i < mat.size(); i++) {
+      reply->set_data(i, mat[i]);
+    }
+    reply->set_rows(2);
+    reply->set_cols(2);
     return Status::OK;
   }
 };
@@ -38,20 +41,13 @@ void RunServer() {
   std::string address = "0.0.0.0";
   std::string port = "9001";
   std::string server_address = address + ":" + port;
-  GreeterServiceImpl service;
+  RouteGuideImpl service;
 
   ServerBuilder builder;
-  // Listen on the given address without any authentication mechanism.
   builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
-  // Register "service" as the instance through which we'll communicate with
-  // clients. In this case it corresponds to an *synchronous* service.
   builder.RegisterService(&service);
-  // Finally assemble the server.
   std::unique_ptr<Server> server(builder.BuildAndStart());
-  std::cout << "Server listening on " << server_address << std::endl;
-
-  // Wait for the server to shutdown. Note that some other thread must be
-  // responsible for shutting down the server for this call to ever return.
+  std::cout << "C++ server listening on " << server_address << std::endl;
   server->Wait();
 }
 

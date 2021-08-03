@@ -1,0 +1,14 @@
+{
+  "details": {
+    "endpoint": "http://localhost:9001",
+    "methodFqn": "routeguide.RouteGuide.GetMatrixAddition",
+    "mode": "grpc"
+  },
+  "requests": [
+    {
+      "location": "GetMatrixAddition-request.json"
+    }
+  ],
+  "operationType": "unary",
+  "invokerName": "grpc"
+}
