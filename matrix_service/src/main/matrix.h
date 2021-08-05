@@ -6,36 +6,39 @@
 #include <string>
 #include <type_traits>
 
+#include "main/schema.grpc.pb.h"
+using routeguide::MatrixArr;
+
 template <typename T>
 class Matrix {
     public:
         int rows;
         int columns;
         int size;
+        std::vector<std::vector<T>> data;
 
         Matrix();
         Matrix(const std::vector<std::vector<T>>& new_matrix);
         Matrix(const std::vector<std::vector<T>>& new_matrix, T r, T c);
+        Matrix(routeguide::MatrixArr m_arr);
+        Matrix(int r, int c);
 
         //Matrix operator*(Matrix& m2);
         Matrix operator+(const Matrix& m2);
+        void add(const Matrix& m2);
         //Matrix operator-(Matrix& m2);
 
+        std::vector<T> ravel();
         void print_matrix();
-
-    private:
-        std::vector<std::vector<T>> data;
 };
 
 template<typename T>
-Matrix<T>::Matrix() {
-    rows = 2; 
-    columns = 2;
+Matrix<T>::Matrix(int r, int c) {
+    rows = r; 
+    columns = c;
     size = rows * columns;
-    data = {
-        {1, 2},
-        {3, 4}
-    };
+    std::vector<std::vector<T>> new_data(rows, std::vector<T>(columns, 0));
+    data = new_data;
 }
 
 template<typename T>
@@ -46,7 +49,7 @@ Matrix<T>::Matrix(const std::vector<std::vector<T>>& new_matrix, T r, T c) {
     rows = r;
     columns = c;
     size = r * c;
-    std::vector<std::vector<T>> new_data(r, std::vector<T>(c, 0));
+    std::vector<std::vector<T>> new_data(rows, std::vector<T>(columns, 0));
 
     int row_count = 0;
     int old_index = 0;
@@ -59,6 +62,30 @@ Matrix<T>::Matrix(const std::vector<std::vector<T>>& new_matrix, T r, T c) {
         }
         ++row_count;
     }
+    data = new_data;
+}
+
+template<typename T>
+Matrix<T>::Matrix(routeguide::MatrixArr m_arr)
+{
+    rows = m_arr.rows();
+    columns = m_arr.cols();
+
+    std::vector<std::vector<T>> new_data(rows, std::vector<T>(columns, 0));
+
+    // Need separate step to properly iterate over array
+    int step = 0;
+    int row_count = 0;
+    while (row_count < rows && step < m_arr.array_size()) 
+    {
+        for (int i = 0; i < columns; i++)
+        {
+            new_data[row_count][i] = m_arr.array(step);
+            ++step;
+        }
+        ++row_count;
+    }
+    data = new_data;
 }
 
 template<typename T>
@@ -104,6 +131,35 @@ Matrix<T> Matrix<T>::operator+(const Matrix& m2)
     }
 
     return Matrix<T>(new_data);
+}
+
+template<typename T>
+void Matrix<T>::add(const Matrix& m2) 
+{
+    if (m2.size != size || m2.rows != rows || m2.columns != columns)
+        throw std::invalid_argument("Matrixes are not of the same size");
+
+    for (int i = 0; i < data.size(); i++)
+    {
+        for(int j = 0; j < data[i].size(); j++) 
+        {
+            data[i][j] = data[i][j] + m2.data[i][j];
+        }
+    }
+}
+
+template<typename T>
+std::vector<T> Matrix<T>::ravel() 
+{
+    std::vector<T> v;
+    v.reserve(rows * columns);
+    for (const auto &row : data) {
+        for (const auto &cell : row) {
+            v.push_back(cell);
+        }
+    }
+
+    return v;
 }
 
 template<typename T>

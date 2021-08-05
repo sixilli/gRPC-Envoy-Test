@@ -27,12 +27,29 @@ class RouteGuideImpl final : public RouteGuide::Service {
   Status GetMatrixAddition(ServerContext* context, 
                            const MatrixRequest* request, 
                            MatrixArr* reply) override {
-    std::vector<int> mat{1,2,3,4};
-    for (int i = 0; i < mat.size(); i++) {
-      reply->set_data(i, mat[i]);
+
+    int arrays_count = request->data_size();
+    auto arr = request->data(0);
+
+    std::vector<std::unique_ptr<Matrix<int32_t>>> matrices;
+    matrices.reserve(arrays_count);
+
+    for (int i = 0; i < arrays_count; i++) {
+      auto array = request->data(i);
+      matrices.push_back(std::make_unique<Matrix<int32_t>>(array));
+      matrices[i]->print_matrix();
     }
-    reply->set_rows(2);
-    reply->set_cols(2);
+
+    auto result = std::make_unique<Matrix<int32_t>>(arr.rows(), arr.cols());
+
+    for (int i = 0; i < arrays_count; i++) {
+      result->add(*matrices[i]);
+    }
+
+    auto data = result->ravel();
+    reply->mutable_array()->Add(data.begin(), data.end());
+    reply->set_rows(result->rows);
+    reply->set_cols(result->columns);
     return Status::OK;
   }
 };
