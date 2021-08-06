@@ -20,12 +20,12 @@ class Matrix {
         Matrix();
         Matrix(const std::vector<std::vector<T>>& new_matrix);
         Matrix(const std::vector<std::vector<T>>& new_matrix, T r, T c);
-        Matrix(routeguide::MatrixArr m_arr);
+        Matrix(std::vector<T> vec, T r, T c);
         Matrix(int r, int c);
 
         //Matrix operator*(Matrix& m2);
         Matrix operator+(const Matrix& m2);
-        void add(const Matrix& m2);
+        void add_inplace(const Matrix& m2);
         //Matrix operator-(Matrix& m2);
 
         std::vector<T> ravel();
@@ -66,21 +66,22 @@ Matrix<T>::Matrix(const std::vector<std::vector<T>>& new_matrix, T r, T c) {
 }
 
 template<typename T>
-Matrix<T>::Matrix(routeguide::MatrixArr m_arr)
+Matrix<T>::Matrix(std::vector<T> vec, T r, T c)
 {
-    rows = m_arr.rows();
-    columns = m_arr.cols();
+    rows = r;
+    columns = c;
+    size = r * c;
 
     std::vector<std::vector<T>> new_data(rows, std::vector<T>(columns, 0));
 
     // Need separate step to properly iterate over array
     int step = 0;
     int row_count = 0;
-    while (row_count < rows && step < m_arr.array_size()) 
+    while (row_count < rows && step < vec.size()) 
     {
         for (int i = 0; i < columns; i++)
         {
-            new_data[row_count][i] = m_arr.array(step);
+            new_data[row_count][i] = vec[step];
             ++step;
         }
         ++row_count;
@@ -134,7 +135,7 @@ Matrix<T> Matrix<T>::operator+(const Matrix& m2)
 }
 
 template<typename T>
-void Matrix<T>::add(const Matrix& m2) 
+void Matrix<T>::add_inplace(const Matrix& m2) 
 {
     if (m2.size != size || m2.rows != rows || m2.columns != columns)
         throw std::invalid_argument("Matrixes are not of the same size");

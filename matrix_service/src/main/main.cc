@@ -35,19 +35,21 @@ class RouteGuideImpl final : public RouteGuide::Service {
     matrices.reserve(arrays_count);
 
     for (int i = 0; i < arrays_count; i++) {
-      auto array = request->data(i);
-      matrices.push_back(std::make_unique<Matrix<int32_t>>(array));
-      matrices[i]->print_matrix();
+      auto arr_msg = request->data(i);
+      std::vector<int32_t> vec(arr_msg.array().begin(), arr_msg.array().end());
+      matrices.push_back(
+        std::make_unique<Matrix<int32_t>>(vec, arr_msg.rows(), arr_msg.cols())
+      );
     }
 
     auto result = std::make_unique<Matrix<int32_t>>(arr.rows(), arr.cols());
 
     for (int i = 0; i < arrays_count; i++) {
-      result->add(*matrices[i]);
+      result->add_inplace(*matrices[i]);
     }
 
-    auto data = result->ravel();
-    reply->mutable_array()->Add(data.begin(), data.end());
+    auto mat_data = result->ravel();
+    reply->mutable_array()->Add(mat_data.begin(), mat_data.end());
     reply->set_rows(result->rows);
     reply->set_cols(result->columns);
     return Status::OK;
